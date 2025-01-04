@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "59536673405",
+    "project_id": "pawpalforpets",
+    "storage_bucket": "pawpalforpets.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59536673405:android:d5d3daeccca868b0487f14",
+        "android_client_info": {
+          "package_name": "com.example.pawpalforpets"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdClf-9qzB21_T7CR5aGzqUWj5PV1uKeM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
