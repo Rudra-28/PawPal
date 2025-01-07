@@ -43,6 +43,7 @@ dependencies:
   pinput: ^5.0.0
   geocoding: ^3.0.0
   geolocator: ^13.0.2
+  location: ^5.0.0
 
 dev_dependencies:
   flutter_test:

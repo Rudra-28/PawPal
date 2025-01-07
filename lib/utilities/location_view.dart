@@ -1,89 +1,105 @@
 import 'package:flutter/material.dart';
-// import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart';
+import 'package:pawpalforpets/services/location_services.dart';
+// ... other imports
 
-class LocationWidget extends StatefulWidget {
-  const LocationWidget({super.key});
+class LocationView extends StatefulWidget {
+  final Stream<LocationData> locationStream;
+
+  const LocationView({super.key, required this.locationStream});
 
   @override
-  State<LocationWidget> createState() => _LocationWidgetState();
+  State<LocationView> createState() => _LocationViewState();
 }
 
-class _LocationWidgetState extends State<LocationWidget> {
-  String _currentLocation = 'Unknown';
-
-  @override
-  void initState() {
-    super.initState();
-    _getCurrentLocation();
-  }
-
-  Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Check if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.',
-      );
-    }
-
-    // Get the current position.
-    final position = await Geolocator.getCurrentPosition();
-    _getAddressFromCoordinates(position);
-  }
-
-  Future<void> _getAddressFromCoordinates(Position position) async {
-    try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-      if (placemarks.isNotEmpty) {
-        Placemark placemark = placemarks[0];
-        setState(() {
-          _currentLocation =
-              "${placemark.locality}, ${placemark.administrativeArea}";
-        });
-      }
-    } catch (e) {
-      print('Error getting address: $e');
-      setState(() {
-        _currentLocation = 'Error getting location';
-      });
-    }
-  }
+class _LocationViewState extends State<LocationView> {
+  final LocationService _locationService = LocationService(); 
+  String? _manualLocation; // To store the manually entered location
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Align(
-          alignment: Alignment.topRight,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.location_on, color: Colors.blue),
-              const SizedBox(width: 8),
-              Text(_currentLocation),
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Location Settings'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Display live location if available
+            StreamBuilder<LocationData>(
+              stream: widget.locationStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final location = snapshot.data!;
+                  return Column(
+                    children: [
+                      Text('Latitude: ${location.latitude}'),
+                      Text('Longitude: ${location.longitude}'),
+                    ],
+                  );
+                } else if (snapshot.hasError) {
+                  return const Text('Error getting location');
+                } else {
+                  return const CircularProgressIndicator();
+                }
+              },
+            ),
+
+            const SizedBox(height: 30),
+
+            // "Around Me" button
+            ElevatedButton(
+              onPressed: () async {
+                // Try to get the location again
+                LocationData? locationData = await _locationService.getLocation();
+                if (locationData != null) {
+                  // Update the stream (you might need to adjust this based on your LocationService)
+                  _locationService.updateLocationStream(locationData); 
+                } else {
+                  // Handle location retrieval failure (e.g., show a snackbar)
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Unable to get location. Please check your settings.'))
+                  );
+                }
+              },
+              child: const Text('Around Me'),
+            ),
+
+            const SizedBox(height: 20),
+
+            // "Set Location Manually" section
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Enter your address',
+                    ),
+                    onChanged: (text) {
+                      setState(() {
+                        _manualLocation = text;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle setting the location manually
+                      // (e.g., use geocoding to get coordinates from the address)
+                      // and update your app's state accordingly
+                    },
+                    child: const Text('Set Location'),
+                  ),
+                ],
+              ),
+            ),
+
+            // Display manual location if set
+            if (_manualLocation != null) 
+              Text('Manual Location: $_manualLocation'),
+          ],
         ),
       ),
     );

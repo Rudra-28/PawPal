@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pawpalforpets/authentication/login_view.dart';
+import 'package:pawpalforpets/constants/routes.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -153,6 +154,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   onPressed: _register,
                   child: const Text('Register'),
                 ),
+                const SizedBox(height: 10,),
+                ElevatedButton(onPressed: (){
+                  Navigator.of(context).pushNamedAndRemoveUntil( loginRoute, (route)=> true);
+                }, child: const Text("if registered, then login"))
               ],
             ),
           ),

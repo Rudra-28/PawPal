@@ -34,13 +34,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'PawPal',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomeView(),
+      home: const RegistrationScreen(),
       routes: <String, WidgetBuilder>{
-      locationRoute: (context)=> const LocationWidget(),
+      locationRoute: (context)=> const LocationView(locationStream: Stream.empty(),),
+      loginRoute:(context)=> const LoginView(),
+      //chatRoute:(context)=> const ChatScreen(),
     }
     );
   }

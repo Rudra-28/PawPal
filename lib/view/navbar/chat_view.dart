@@ -22,21 +22,33 @@ class _ChatScreenState extends State<ChatScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chats'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Buying'),
-            Tab(text: 'Selling'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: const [
-          AdoptingMessages(),
-          DonatingMessages(),
+      body:  Column(
+        children: [
+          // App bar with title
+          AppBar(
+            title: const Text('Chats'),
+            automaticallyImplyLeading: false, // Hide back button
+          ),
+      
+          // Tab bar
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'Buying'),
+              Tab(text: 'Selling'),
+            ],
+          ),
+      
+          // Tab bar view
+          Expanded( // Make TabBarView take the remaining space
+            child: TabBarView(
+              controller: _tabController,
+              children: const [
+                AdoptingMessages(),
+                DonatingMessages(),
+              ],
+            ),
+          ),
         ],
       ),
     );

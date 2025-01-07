@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:pawpalforpets/utilities/location_view.dart';
+import 'package:location/location.dart';
+import 'package:pawpalforpets/services/location_services.dart';
+import 'package:pawpalforpets/utilities/location_view.dart'; // Make sure to create this file
+import 'package:pawpalforpets/view/Drawer/my_drawer.dart';
 import 'package:pawpalforpets/view/bottom_category.dart';
 import 'package:pawpalforpets/view/category_widget.dart';
-import 'package:pawpalforpets/view/navbar/chat_view.dart'; 
+import 'package:pawpalforpets/view/navbar/chat_view.dart';
+import 'package:pawpalforpets/view/navbar/upload_animal.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -13,11 +17,11 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
+  final LocationService _locationService = LocationService();
 
   static final List<Widget> _widgetOptions = <Widget>[
     // Replace with actual content for each screen
     const Text('Home'),
-    
     const Text('Upload'),
     const Text('Favourites'),
     const Text('Profile'),
@@ -34,26 +38,53 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('PawPal'),
-         actions: [ 
-          // Location panel
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0), // Adjust padding as needed
-            child: InkWell( // Or GestureDetector for tap functionality
-              onTap: () {
-                 Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const LocationWidget()));
+        automaticallyImplyLeading: false,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              // Navigate to the location view and pass the location stream
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LocationView(
+                    locationStream: _locationService.locationStream,
+                  ),
+                ),
+              );
+            },
+            child: StreamBuilder<LocationData>(
+              stream: _locationService.locationStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final location = snapshot.data!;
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_on),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Lat: ${location.latitude!.toStringAsFixed(2)}, Long: ${location.longitude!.toStringAsFixed(2)}',
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  return const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  );
+                }
               },
-              child: const Row(
-                children: [
-                  Icon(Icons.location_on, size:40, color: Colors.black), // Location icon
-                  SizedBox(width: 4),
-                  Text('Pune', style: TextStyle(color: Colors.black)), // Replace with actual location
-                ],
-              ),
             ),
           ),
         ],
-        // Conditionally show the search bar
         bottom: _selectedIndex == 0
             ? PreferredSize(
                 preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -77,27 +108,28 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
               )
-            : null, // Set to null to hide the search bar
+            : null,
       ),
+      drawer: const MyDrawer(),
       body: _selectedIndex == 0
-          ? SingleChildScrollView( // Wrap the Column with SingleChildScrollView
+          ? SingleChildScrollView(
               child: Column(
                 children: [
                   const CategoryScrollView(),
-                   Container(
+                  Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 80, 
+                      horizontal: 80,
                       vertical: 10,
                     ),
                     margin: const EdgeInsets.only(bottom: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE0F2F7), // Dark background color
+                      color: const Color(0xFFE0F2F7),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      "Urgent Adoptions Required", 
+                      "Urgent Adoptions Required",
                       style: TextStyle(
-                        color: Colors.blueGrey[700], 
+                        color: Colors.blueGrey[700],
                         fontSize: 20,
                       ),
                     ),
@@ -116,7 +148,7 @@ class _HomeViewState extends State<HomeView> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
-            label: 'chatting',
+            label: 'chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.upload),
@@ -133,17 +165,20 @@ class _HomeViewState extends State<HomeView> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
-         onTap: (int index) { // Handle taps here
-    if (index == 1) { // Check if "Chats" is tapped (index 1)
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ChatScreen()),
-      );
-    } else {
-      // Handle taps on other icons if needed
-      _onItemTapped(index); // This is your existing function to update _selectedIndex
-    }
-  }),
+        onTap: (int index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ChatScreen()),
+            );
+          } else if (index == 2) {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const UploadPet()));
+          } else {
+            _onItemTapped(index);
+          }
+        },
+      ),
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pawpalforpets/view/animal_widgets/cat_widget.dart';
+import 'package:pawpalforpets/view/animal_widgets/dog_widget.dart';
+import 'package:pawpalforpets/view/animal_widgets/farm_animals.dart';
 import 'package:pawpalforpets/view/dog_view.dart'; 
 
 class CategoryScrollView extends StatelessWidget {
@@ -17,7 +20,7 @@ class CategoryScrollView extends StatelessWidget {
                 label: 'Dogs',
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const DogView()));
+                      MaterialPageRoute(builder: (context) => const DogPreferencesPage()));
                 }),
             const SizedBox(width: 10),
             CategoryWidget(
@@ -25,15 +28,15 @@ class CategoryScrollView extends StatelessWidget {
                 label: 'Cats',
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const DogView()));
+                      MaterialPageRoute(builder: (context) => const CatPreferencesPage()));
                 }),
             const SizedBox(width: 10),
             CategoryWidget(
                 icon: Icons.pets,
-                label: 'Birds',
+                label: 'Farm Amimals',
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const DogView()));
+                      MaterialPageRoute(builder: (context) =>  FarmAnimalsPage()));
                 }),
             const SizedBox(width: 10),
             CategoryWidget(
@@ -86,8 +89,8 @@ class CategoryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final double width = isLarge ? 170: 110;
-    final double height = isLarge ? 170: 110;
+    final double width = isLarge ? 185: 110;
+    final double height = isLarge ? 185: 110;
     final double iconSize = isLarge ? 60: 40;
     return Column(
       children: [
